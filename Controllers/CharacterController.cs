@@ -50,6 +50,21 @@ namespace dotnet_rpg.Controllers
 
         #endregion
 
+
+        #region ask<ActionResult<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updated) --> updates character
+
+        [HttpPut]
+        public async Task<ActionResult<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updated)
+        {
+            var response = await _characterService.UpdateCharacter(updated);
+            return response.Data == null ? NotFound(response) : Ok(response);
+
+            // if data is null return response objekct wrapped around respoense 
+            // else return an ok obkect with response. 
+        }
+
+        #endregion
+
         #endregion
     }
 }
