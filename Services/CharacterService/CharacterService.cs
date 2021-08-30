@@ -100,7 +100,7 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 Character character =
-                    characters.FirstOrDefault(c =>
+                    await context.Character.FirstOrDefaultAsync(c =>
                         c.Id == updateCharacterDto.Id); // find the character id based on Characters. 
                 character.Name = updateCharacterDto.Name;
                 character.HitPoint = updateCharacterDto.HitPoint;
@@ -108,6 +108,10 @@ namespace dotnet_rpg.Services.CharacterService
                 character.Intelligence = updateCharacterDto.Intelligence;
                 character.Defense = updateCharacterDto.Defense;
                 character.Class = updateCharacterDto.Class;
+                
+                context.Character.Update(character); // this is nedded to update the characters 
+                await context.SaveChangesAsync();
+
                 serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
             }
             catch (Exception e)
