@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using dotnet_rpg.Models;
+using dotnet_rpg.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
@@ -9,23 +10,44 @@ namespace dotnet_rpg.Controllers
     [Route("[controller]")] // this means this is the controller for the route  
     public class CharacterController : ControllerBase
     {
-        private static List<Character> characters = new List<Character>
-        {
-            new Character(),
-            new Character { Id = 1, Name = "Sam" }
-        };
+        private readonly ICharacterService
+            _characterService; // dependecy for Icharacter which is part of characters sevice. 
 
-        // returns a list of characters 
-        [HttpGet("GetAll")] // means this is a http get method and has GETAll method alongside with with it. 
-        public ActionResult<List<Character>> Get() // means will be expecting a character 
+        public CharacterController(ICharacterService characterService)
         {
-            return Ok(characters); // sense respoense data in 200 which which means data is foind 
+            _characterService = characterService;
         }
+
+        #region ActionResult<List<Character>> Get() ,ActionResult<Character> GetSingle(int id)
+
+        #region ActionResult<List<Character>> Get() GetMETHOD returns list of characters
+
+        [HttpGet("GetAll")]
+        public ActionResult<List<Character>> Get() =>
+            Ok(_characterService.GetAllCharacters()); // sense respoense data in 200 which which means data is foind 
+
+        #endregion
+        
+
+
+        #region ActionResult<Character> GetSingle(int id)  --> returns single character based on ID Get MEthod
 
         [HttpGet("{id}")]
-        public ActionResult<Character> GetSingle(int id) // it is case sensititive make sure this Id and getSingle are both same. 
-        {
-            return Ok(characters.FirstOrDefault(c => c.Id == id)); // sense respoense data
-        }
+        public ActionResult<Character> GetSingle(int id) =>
+            Ok(_characterService.GetCharacterById(id)); // sense respoense data
+
+        #endregion
+        
+        
+
+        #region MyRegion ActionResult<List<Character>> AddCharacter(Character newCharacter) --> a post method used to create a character
+
+        [HttpPost]
+        public ActionResult<List<Character>> AddCharacter(Character newCharacter) =>
+            Ok(_characterService.AddCharacter(newCharacter));
+
+        #endregion
+
+        #endregion
     }
 }
