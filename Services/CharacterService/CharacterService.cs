@@ -65,9 +65,9 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             var character = _mapper.Map<Character>(newCharacter); // adding new characters to the list 
-            character.Id = characters.Max(c => c.Id) + 1; // get the max number of id then add plus + 1 to it. 
-            characters.Add(character); // then add it to the array 
-            serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+            context.Character.Add(character);
+            await context.SaveChangesAsync(); // writes to database. 
+            serviceResponse.Data = await context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
 
             #region code expalanation
 
