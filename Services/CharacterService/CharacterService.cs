@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using dotnet_rpg.Data;
 using dotnet_rpg.DTOS.Character;
 using dotnet_rpg.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace dotnet_rpg.Services.CharacterService
 {
@@ -17,10 +19,12 @@ namespace dotnet_rpg.Services.CharacterService
         };
 
         private readonly IMapper _mapper; // this will map objects. 
+        private readonly DataContext context;
 
-        public CharacterService(IMapper mapper)
+        public CharacterService(IMapper mapper, DataContext context)
         {
             _mapper = mapper;
+            this.context = context;
         }
 
         #region Methods GetAllCharacters(), GetCharacterById(int id),AddCharacter(Character newCharacter)
@@ -28,11 +32,12 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
+            var dbCharacters = await context.Character.ToListAsync(); // get the database characters async 
             // this must match the what function is going to return from the
             // this will return a list with all the characters. 
             // the ServiceList<T> --> must follow  ServiceResponse<List<Character>>() to make sure the function matches. 
             serviceResponse.Data =
-                characters.Select(c => _mapper.Map<GetCharacterDto>(c))
+                dbCharacters.Select(c => _mapper.Map<GetCharacterDto>(c))
                     .ToList(); // then set all the ccharacters to data. 
             return serviceResponse; // return it. 
         }
@@ -41,7 +46,8 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse =
                 new ServiceResponse<GetCharacterDto>(); // create a new isntance of ServiceResponse with Get Chracter DTO Object. 
-            serviceResponse.Data = _mapper.Map<GetCharacterDto>(characters.FirstOrDefault(c => c.Id == id));
+            var dbCharacters = await context.Character.ToListAsync(); // get the database characters async 
+            serviceResponse.Data = _mapper.Map<GetCharacterDto>(dbCharacters.FirstOrDefault(c => c.Id == id));
 
             #region CodeExpalantion _mapper.Map<GetCharacterDto>(characters.FirstOrDefault(c => c.Id == id));
 
