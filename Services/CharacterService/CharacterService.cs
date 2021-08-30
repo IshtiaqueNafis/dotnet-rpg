@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using dotnet_rpg.Models;
 
 namespace dotnet_rpg.Services.CharacterService
@@ -15,11 +16,11 @@ namespace dotnet_rpg.Services.CharacterService
 
         #region Methods GetAllCharacters(), GetCharacterById(int id),AddCharacter(Character newCharacter)
 
-        public List<Character> GetAllCharacters() => characters;
+        public async Task<List<Character>> GetAllCharacters() =>  characters;
 
-        public Character GetCharacterById(int id) => characters.FirstOrDefault(c => c.Id == id);
+        public async Task<Character> GetCharacterById(int id) => characters.FirstOrDefault(c => c.Id == id);
 
-        public List<Character> AddCharacter(Character newCharacter)
+        public async Task<List<Character>> AddCharacter(Character newCharacter)
         {
             characters.Add(newCharacter);
             return characters;
