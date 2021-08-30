@@ -19,7 +19,7 @@ namespace dotnet_rpg.Services
          */
 
         //added service response to have acess to generic class. 
-        
+
         // not that now Character has been replaced by GetCharacterDTO. 
         Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id); // gets single character based on id 
 
@@ -27,5 +27,7 @@ namespace dotnet_rpg.Services
             AddCharacter(AddCharacterDto newCharacter); // adds a single character
 
         Task<ServiceResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updateCharacterDto);
+
+        Task<ServiceResponse<List<GetCharacterDto>>> DeleteCharacter(int id); // deletes
     }
 }

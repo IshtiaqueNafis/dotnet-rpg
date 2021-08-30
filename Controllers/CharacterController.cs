@@ -65,6 +65,17 @@ namespace dotnet_rpg.Controllers
 
         #endregion
 
+        #region Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> DeleteCharacter(int id) --> deltes chaacter based on id
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> DeleteCharacter(int id)
+        {
+            var response = await _characterService.DeleteCharacter(id);
+            return response.Data == null ? NotFound(response) : Ok(response);
+        }
+
+        #endregion
+
         #endregion
     }
 }
