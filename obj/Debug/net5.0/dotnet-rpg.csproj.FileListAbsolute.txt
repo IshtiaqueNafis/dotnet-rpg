@@ -45,3 +45,5 @@ C:\Users\Nafis Ishtiaque\source\repos\dotnet-rpg\obj\Debug\net5.0\dotnet-rpg.dll
 C:\Users\Nafis Ishtiaque\source\repos\dotnet-rpg\obj\Debug\net5.0\ref\dotnet-rpg.dll
 C:\Users\Nafis Ishtiaque\source\repos\dotnet-rpg\obj\Debug\net5.0\dotnet-rpg.pdb
 C:\Users\Nafis Ishtiaque\source\repos\dotnet-rpg\obj\Debug\net5.0\dotnet-rpg.genruntimeconfig.cache
+C:\Users\Nafis Ishtiaque\source\repos\dotnet-rpg\bin\Debug\net5.0\AutoMapper.dll
+C:\Users\Nafis Ishtiaque\source\repos\dotnet-rpg\bin\Debug\net5.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll

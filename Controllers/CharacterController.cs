@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using dotnet_rpg.DTOS.Character;
 using dotnet_rpg.Models;
 using dotnet_rpg.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,7 @@ namespace dotnet_rpg.Controllers
         #region ActionResult<List<Character>> Get() GetMETHOD returns list of characters
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> Get() =>
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get() =>
             Ok(await _characterService
                 .GetAllCharacters()); // sense respoense data in 200 which which means data is foind 
 
@@ -34,7 +35,7 @@ namespace dotnet_rpg.Controllers
         #region ActionResult<Character> GetSingle(int id)  --> returns single character based on ID Get MEthod
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<Character>>> GetSingle(int id) =>
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> GetSingle(int id) =>
             Ok(await _characterService.GetCharacterById(id)); // sense respoense data
 
         #endregion
@@ -43,7 +44,8 @@ namespace dotnet_rpg.Controllers
         #region MyRegion ActionResult<List<Character>> AddCharacter(Character newCharacter) --> a post method used to create a character
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> AddCharacter(Character newCharacter) =>
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> AddCharacter(
+            AddCharacterDto newCharacter) =>
             Ok(await _characterService.AddCharacter(newCharacter));
 
         #endregion
