@@ -108,7 +108,7 @@ namespace dotnet_rpg.Services.CharacterService
                 character.Intelligence = updateCharacterDto.Intelligence;
                 character.Defense = updateCharacterDto.Defense;
                 character.Class = updateCharacterDto.Class;
-                
+
                 context.Character.Update(character); // this is nedded to update the characters 
                 await context.SaveChangesAsync();
 
@@ -130,10 +130,11 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 Character character =
-                    characters.First(c =>
+                    await context.Character.FirstAsync(c =>
                         c.Id == id); // find the character id based on Characters. 
-                characters.Remove(character);
-                serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+                context.Character.Remove(character);
+                await context.SaveChangesAsync();
+                serviceResponse.Data = context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
             }
             catch (Exception e)
             {
