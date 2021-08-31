@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using dotnet_rpg.Models;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +19,8 @@ namespace dotnet_rpg.Data
 
         public async Task<ServiceResponse<int>> Register(User user, string password)
         {
-            var response = new ServiceResponse<int>(); // create a new service respense with with int as a the respoense 
+            var response =
+                new ServiceResponse<int>(); // create a new service respense with with int as a the respoense 
             if (await UserExists(user.UserName))
             {
                 response.Success = false;
@@ -42,9 +45,26 @@ namespace dotnet_rpg.Data
 
         #region Task<ServiceResponse<string>> Login(string username, string password) --> loggs in the user
 
-        public Task<ServiceResponse<string>> Login(string username, string password)
+        public async Task<ServiceResponse<string>> Login(string username, string password)
         {
-            throw new System.NotImplementedException();
+            var response = new ServiceResponse<string>();
+            User user = await _context.Users.FirstOrDefaultAsync(x => x.UserName == username); // checl user name 
+            if (user == null)
+            {
+                response.Success = false;
+                response.Message = "User Not found";
+            }
+            else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
+                response.Success = false;
+                response.Message = "Wrong password";
+            }
+            else
+            {
+                response.Data = user.Id.ToString();
+            }
+
+            return response;
         }
 
         #endregion
@@ -80,7 +100,45 @@ namespace dotnet_rpg.Data
         }
 
         #endregion
-    }
 
-    #endregion
+        #region VerifyPasswordHash
+
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+
+            #region Code Explanation
+
+            /*
+             *   private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+             * password --> willbe user input what ever the user provides
+             * byte[] passwordHash--> this will be retrived from the database.
+             * byte[] passwordSalt --> this will be retrived from the database. 
+             */
+
+            #endregion
+
+        {
+            using (HMACSHA512 hmac =
+                new System.Security.Cryptography.HMACSHA512(
+                    passwordSalt)) // this recivers a password salt  and creates HMACSHA512 with passwordSalt 
+            {
+                byte[] computeHash =
+                    hmac.ComputeHash(
+                        System.Text.Encoding.UTF8.GetBytes(password)); // create computedHashBased on password
+                for (int i = 0; i < computeHash.Length; i++) //loop through computed hash 
+                {
+                    if (computeHash[i] != passwordHash[i]) // check whether or not both are euqal. 
+                    {
+                        return
+                            false; // if one single character is wrong end the loop right away means user has entered the wrong password. 
+                    }
+                }
+
+                return true;
+            }
+        }
+
+        #endregion
+
+        #endregion
+    }
 }
