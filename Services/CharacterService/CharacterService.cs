@@ -158,6 +158,63 @@ namespace dotnet_rpg.Services.CharacterService
             return serviceResponse;
         }
 
+        #region AddCharacterSkill(AddCharacterSkillDto newCharacterSkill) --> adds skill to chanracers.
+
+        public async Task<ServiceResponse<GetCharacterDto>> AddCharacterSkill(AddCharacterSkillDto newCharacterSkill)
+        {
+            var response = new ServiceResponse<GetCharacterDto>();
+
+            try
+            {
+                Character character = await _context.Character
+                    .Include(c => c.Weapon) // includes the weapon
+                    .Include(c => c.Skills)// include the skills 
+                    .FirstOrDefaultAsync(c => c.Id == newCharacterSkill.CharacterId && c.User.Id == GetUserId());
+
+                #region code explanation
+
+                /*
+                 * await _context.Character.FirstOrDefaultAsync(c => c.Id == newCharacterSkill.CharacterId && c.User.Id == GetUserId());
+                 * will go to character table on the database
+                 * c => c.Id == newCharacterSkill.CharacterId --> find the characters with the id
+                 * c.User.Id == GetUserId() --> make sure user logged in with correct ID As well so he or she can only edit them 
+                 * 
+                 */
+
+                #endregion
+
+                if (character == null)
+                {
+                    response.Success = false;
+                    response.Message = "Character Not found";
+                    return response;
+                }
+
+                Skill skill = await _context.Skills.FirstOrDefaultAsync(c => c.Id == newCharacterSkill.SkillId); // this gets the skill from the databse. 
+
+                if (skill == null)
+                {
+                    response.Success = false;
+                    response.Message = "skill not found";
+                    return response;
+                }
+
+                character.Skills.Add(skill); // add skill to the character 
+                await _context.SaveChangesAsync(); // saves the changes 
+                response.Data = _mapper.Map<GetCharacterDto>(character); // maps the characterDto to character 
+                return response;
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.Message;
+            }
+
+            return response;
+        }
+
+        #endregion
+
         #endregion
 
         #region GetUserId() --> get the looged in UserId

@@ -31,7 +31,6 @@ namespace dotnet_rpg.Controllers
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
         {
-           
             return Ok(await _characterService
                 .GetAllCharacters()); // pass the id here based on id get the character. 
             // sense respoense data in 200 which which means data is foind 
@@ -84,6 +83,21 @@ namespace dotnet_rpg.Controllers
 
         #endregion
 
+        #region
+
+        [HttpPost("Skill")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDto>>> AddCharacterSkill(
+            AddCharacterSkillDto newharacterSkill)
+        {
+            return Ok(await _characterService.AddCharacterSkill(newharacterSkill));
+        }
+
         #endregion
+
+        #endregion
+    }
+
+    public class AddCharacterSkill
+    {
     }
 }
