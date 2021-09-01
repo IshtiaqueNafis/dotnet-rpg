@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using dotnet_rpg.Data;
 using dotnet_rpg.DTOS.Character;
 using dotnet_rpg.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace dotnet_rpg.Services.CharacterService
@@ -19,21 +21,23 @@ namespace dotnet_rpg.Services.CharacterService
         };
 
         private readonly IMapper _mapper; // this will map objects. 
-        private readonly DataContext context;
+        private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CharacterService(IMapper mapper, DataContext context)
+        public CharacterService(IMapper mapper, DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper;
-            this.context = context;
+            _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #region Methods GetAllCharacters(), GetCharacterById(int id),AddCharacter(Character newCharacter)
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             var dbCharacters =
-                await context.Character.Where(c => c.User.Id == userId)
+                await _context.Character.Where(c => c.User.Id == GetUserId())
                     .ToListAsync(); // get the database characters async 
             // this must match the what function is going to return from the
             // this will return a list with all the characters. 
@@ -49,7 +53,7 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse =
                 new ServiceResponse<GetCharacterDto>(); // create a new isntance of ServiceResponse with Get Chracter DTO Object. 
-            var dbCharacters = await context.Character.ToListAsync(); // get the database characters async 
+            var dbCharacters = await _context.Character.ToListAsync(); // get the database characters async 
             serviceResponse.Data = _mapper.Map<GetCharacterDto>(dbCharacters.FirstOrDefault(c => c.Id == id));
 
             #region CodeExpalantion _mapper.Map<GetCharacterDto>(characters.FirstOrDefault(c => c.Id == id));
@@ -68,9 +72,9 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             var character = _mapper.Map<Character>(newCharacter); // adding new characters to the list 
-            context.Character.Add(character);
-            await context.SaveChangesAsync(); // writes to database. 
-            serviceResponse.Data = await context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+            _context.Character.Add(character);
+            await _context.SaveChangesAsync(); // writes to database. 
+            serviceResponse.Data = await _context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
 
             #region code expalanation
 
@@ -103,7 +107,7 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 Character character =
-                    await context.Character.FirstOrDefaultAsync(c =>
+                    await _context.Character.FirstOrDefaultAsync(c =>
                         c.Id == updateCharacterDto.Id); // find the character id based on Characters. 
                 character.Name = updateCharacterDto.Name;
                 character.HitPoint = updateCharacterDto.HitPoint;
@@ -112,8 +116,8 @@ namespace dotnet_rpg.Services.CharacterService
                 character.Defense = updateCharacterDto.Defense;
                 character.Class = updateCharacterDto.Class;
 
-                context.Character.Update(character); // this is nedded to update the characters 
-                await context.SaveChangesAsync();
+                _context.Character.Update(character); // this is nedded to update the characters 
+                await _context.SaveChangesAsync();
 
                 serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
             }
@@ -133,11 +137,11 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 Character character =
-                    await context.Character.FirstAsync(c =>
+                    await _context.Character.FirstAsync(c =>
                         c.Id == id); // find the character id based on Characters. 
-                context.Character.Remove(character);
-                await context.SaveChangesAsync();
-                serviceResponse.Data = context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+                _context.Character.Remove(character);
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = _context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
             }
             catch (Exception e)
             {
@@ -147,6 +151,14 @@ namespace dotnet_rpg.Services.CharacterService
 
             return serviceResponse;
         }
+
+        #endregion
+
+        #region GetUserId() --> get the looged in UserId
+
+        private int GetUserId() =>
+            int.Parse(_httpContextAccessor.HttpContext.User
+                .FindFirstValue(ClaimTypes.NameIdentifier)); // get the user vased on ClaimTypes.NameIdentifier. 
 
         #endregion
 

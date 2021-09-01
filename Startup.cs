@@ -9,6 +9,7 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using dotnet_rpg.Services;
 using dotnet_rpg.Services.CharacterService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
@@ -29,18 +30,17 @@ namespace dotnet_rpg
         {
             services.AddDbContext<DataContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "dotnet_rpg", Version = "v1" });
-                c.AddSecurityDefinition("oauth2",new OpenApiSecurityScheme
+                c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
                     Description = "Standard Authorization header using the Bearer scheme. Example: \"bearer {token}\"",
                     In = ParameterLocation.Header,
                     Name = "Authorization",
                     Type = SecuritySchemeType.ApiKey
-                    
                 });
                 c.OperationFilter<SecurityRequirementsOperationFilter>();
             });
@@ -61,6 +61,7 @@ namespace dotnet_rpg
                     ValidateAudience = false
                 };
             });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // https://andrewlock.net/a-look-behind-the-jwt-bearer-authentication-middleware-in-asp-net-core/ 
         }
 
