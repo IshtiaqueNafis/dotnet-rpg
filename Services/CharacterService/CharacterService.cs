@@ -29,10 +29,12 @@ namespace dotnet_rpg.Services.CharacterService
 
         #region Methods GetAllCharacters(), GetCharacterById(int id),AddCharacter(Character newCharacter)
 
-        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
+        public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters(int userId)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
-            var dbCharacters = await context.Character.ToListAsync(); // get the database characters async 
+            var dbCharacters =
+                await context.Character.Where(c => c.User.Id == userId)
+                    .ToListAsync(); // get the database characters async 
             // this must match the what function is going to return from the
             // this will return a list with all the characters. 
             // the ServiceList<T> --> must follow  ServiceResponse<List<Character>>() to make sure the function matches. 
@@ -41,6 +43,7 @@ namespace dotnet_rpg.Services.CharacterService
                     .ToList(); // then set all the ccharacters to data. 
             return serviceResponse; // return it. 
         }
+
 
         public async Task<ServiceResponse<GetCharacterDto>> GetCharacterById(int id)
         {

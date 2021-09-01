@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using dotnet_rpg.DTOS.Character;
 using dotnet_rpg.Models;
@@ -26,11 +27,15 @@ namespace dotnet_rpg.Controllers
 
         #region ActionResult<List<Character>> Get() GetMETHOD returns list of characters
 
-        [AllowAnonymous] // anyone can acess this. 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get() =>
-            Ok(await _characterService
-                .GetAllCharacters()); // sense respoense data in 200 which which means data is foind 
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get()
+        {
+            int id = int.Parse(User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value); // this from the user from the program and get the id from it. 
+            return Ok(await _characterService
+                .GetAllCharacters(id)); // pass the id here based on id get the character. 
+            // sense respoense data in 200 which which means data is foind 
+        }
 
         #endregion
 
