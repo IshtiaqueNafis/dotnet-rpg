@@ -4,10 +4,12 @@ using System.Threading.Tasks;
 using dotnet_rpg.DTOS.Character;
 using dotnet_rpg.Models;
 using dotnet_rpg.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
 {
+    [Authorize]
     [ApiController] // does api repsoneses, 
     [Route("[controller]")] // this means this is the controller for the route  
     public class CharacterController : ControllerBase
