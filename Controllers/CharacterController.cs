@@ -26,6 +26,7 @@ namespace dotnet_rpg.Controllers
 
         #region ActionResult<List<Character>> Get() GetMETHOD returns list of characters
 
+        [AllowAnonymous] // anyone can acess this. 
         [HttpGet("GetAll")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterDto>>>> Get() =>
             Ok(await _characterService
