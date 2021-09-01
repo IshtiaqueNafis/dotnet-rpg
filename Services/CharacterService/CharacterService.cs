@@ -14,12 +14,6 @@ namespace dotnet_rpg.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
-        private static List<Character> characters = new List<Character>
-        {
-            new Character(),
-            new Character { Id = 1, Name = "Sam" }
-        };
-
         private readonly IMapper _mapper; // this will map objects. 
         private readonly DataContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -71,10 +65,12 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterDto>>> AddCharacter(AddCharacterDto newCharacter)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
-            var character = _mapper.Map<Character>(newCharacter); // adding new characters to the list 
+            Character character = _mapper.Map<Character>(newCharacter); // adding new characters to the list 
+            character.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId()); // links users to characters. 
             _context.Character.Add(character);
             await _context.SaveChangesAsync(); // writes to database. 
-            serviceResponse.Data = await _context.Character.Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+            serviceResponse.Data = await _context.Character.Where(c=>c.User.Id==GetUserId()).
+                Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
 
             #region code expalanation
 
