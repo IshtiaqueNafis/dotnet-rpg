@@ -66,11 +66,12 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterDto>>();
             Character character = _mapper.Map<Character>(newCharacter); // adding new characters to the list 
-            character.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId()); // links users to characters. 
+            character.User =
+                await _context.Users.FirstOrDefaultAsync(u => u.Id == GetUserId()); // links users to characters. 
             _context.Character.Add(character);
             await _context.SaveChangesAsync(); // writes to database. 
-            serviceResponse.Data = await _context.Character.Where(c=>c.User.Id==GetUserId()).
-                Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
+            serviceResponse.Data = await _context.Character.Where(c => c.User.Id == GetUserId())
+                .Select(c => _mapper.Map<GetCharacterDto>(c)).ToListAsync();
 
             #region code expalanation
 
@@ -103,19 +104,28 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 Character character =
-                    await _context.Character.FirstOrDefaultAsync(c =>
-                        c.Id == updateCharacterDto.Id); // find the character id based on Characters. 
-                character.Name = updateCharacterDto.Name;
-                character.HitPoint = updateCharacterDto.HitPoint;
-                character.Strength = updateCharacterDto.Strength;
-                character.Intelligence = updateCharacterDto.Intelligence;
-                character.Defense = updateCharacterDto.Defense;
-                character.Class = updateCharacterDto.Class;
+                    await _context.Character.Include(c => c.User)
+                        .FirstOrDefaultAsync(c =>
+                            c.Id == updateCharacterDto.Id); // find the character id based on Characters. 
+                if (character.User.Id == GetUserId())
+                {
+                    character.Name = updateCharacterDto.Name;
+                    character.HitPoint = updateCharacterDto.HitPoint;
+                    character.Strength = updateCharacterDto.Strength;
+                    character.Intelligence = updateCharacterDto.Intelligence;
+                    character.Defense = updateCharacterDto.Defense;
+                    character.Class = updateCharacterDto.Class;
 
-                _context.Character.Update(character); // this is nedded to update the characters 
-                await _context.SaveChangesAsync();
+                    _context.Character.Update(character); // this is nedded to update the characters 
+                    await _context.SaveChangesAsync();
 
-                serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+                    serviceResponse.Data = _mapper.Map<GetCharacterDto>(character);
+                }
+                else
+                {
+                    serviceResponse.Success = false;
+                    serviceResponse.Message = "character Not found";
+                }
             }
             catch (Exception e)
             {
