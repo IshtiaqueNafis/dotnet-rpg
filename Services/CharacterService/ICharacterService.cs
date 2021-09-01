@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using dotnet_rpg.DTOS.Character;
 using dotnet_rpg.Models;
 
-namespace dotnet_rpg.Services
+namespace dotnet_rpg.Services.CharacterService
 {
     public interface ICharacterService
     {

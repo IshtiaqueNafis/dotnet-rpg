@@ -9,6 +9,7 @@ using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using dotnet_rpg.Services;
 using dotnet_rpg.Services.CharacterService;
+using dotnet_rpg.Services.WeaponService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -61,8 +62,10 @@ namespace dotnet_rpg
                     ValidateAudience = false
                 };
             });
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             // https://andrewlock.net/a-look-behind-the-jwt-bearer-authentication-middleware-in-asp-net-core/ 
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddScoped<IWeaponService, WeaponService>(); // this is for the weaponService Depency 
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
